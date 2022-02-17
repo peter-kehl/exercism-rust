@@ -1,0 +1,2 @@
+# exercism-rust
+Rust exercises
