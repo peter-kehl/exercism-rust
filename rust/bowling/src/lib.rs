@@ -73,7 +73,7 @@ impl BowlingGame {
             };
 
         let spare_or_strike = self.spare_or_strike(pins);
-        assert!(spare_or_strike != SpareOrStrike::Spare || self.throw != Throw::First);
+        assert!(!(spare_or_strike == SpareOrStrike::Spare && self.throw == Throw::First));
 
         self.throw = self.next_throw(pins, spare_or_strike);
 
