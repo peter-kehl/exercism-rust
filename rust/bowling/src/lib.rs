@@ -73,9 +73,7 @@ impl BowlingGame {
             };
 
         let spare_or_strike = self.spare_or_strike(pins);
-        if spare_or_strike == SpareOrStrike::Spare && self.throw == Throw::First {
-            panic!();
-        }
+        assert!(spare_or_strike != SpareOrStrike::Spare || self.throw != Throw::First);
 
         self.throw = self.next_throw(pins, spare_or_strike);
 
@@ -128,9 +126,7 @@ impl BowlingGame {
                 }
             }
             Throw::Third => {
-                if self.frame < 10 {
-                    panic!();
-                }
+                assert!(self.frame == 10);
                 Throw::FrameComplete
             }
             Throw::FrameComplete => panic!(),

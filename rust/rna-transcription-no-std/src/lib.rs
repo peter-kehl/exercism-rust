@@ -94,15 +94,32 @@ impl<'a> Debug for Rna<'a> {
             }
             Rna::DnaBased(str) => {
                 write!(f, "DnaBased {{{str}}} which translates to ")?;
-                // @TODO FromResidual: use operator ? within the closure:
-                //#[allow(unused_must_use)]
-                self.iter().for_each(|c| {
-                    write!(f, "{c}");
+                // @TODO test that it would actually catch the error coming from variable c:
+                //self.iter().fold(Result::Ok(()), |_, c| write!(f, "{c}"))?;
+                let _:Result<(), fmt::Error> = self.iter().fold(Result::Ok(()), |_, c| {
+                    Result::Err(fmt::Error)?
                 });
             }
         }
         write!(f, "}}")
     }
+}
+
+mod test {
+    //use super::{self} as dna;
+
+    #[test]
+    fn test_rna_given_nucleotides_debug() {
+        super::Dna::new("GCTA").map(|dna| {
+            let rna = dna.into_rna();
+            dbg!(rna);
+        });
+    }
+}
+
+#[test]
+fn test_rna_from_dna_debug() {
+
 }
 
 impl<'a> Rna<'a> {
