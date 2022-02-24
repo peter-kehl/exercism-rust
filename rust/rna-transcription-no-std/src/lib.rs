@@ -1,4 +1,4 @@
-//#![no_std]
+#![no_std]
 
 use core::fmt::{self, Debug, Formatter};
 use core::str::Chars;
@@ -94,32 +94,39 @@ impl<'a> Debug for Rna<'a> {
             }
             Rna::DnaBased(str) => {
                 write!(f, "DnaBased {{{str}}} which translates to ")?;
-                // @TODO test that it would actually catch the error coming from variable c:
-                //self.iter().fold(Result::Ok(()), |_, c| write!(f, "{c}"))?;
-                let _:Result<(), fmt::Error> = self.iter().fold(Result::Ok(()), |_, c| {
-                    Result::Err(fmt::Error)?
-                });
+                let main_result: Result<(), fmt::Error> =
+                    self.iter().fold(Ok(()), |prev_result, c| {
+                        if prev_result.is_ok() {
+                            write!(f, "{c}")
+                        } else {
+                            prev_result
+                        }
+                    });
+                if main_result.is_err() {
+                    return main_result;
+                }
             }
         }
         write!(f, "}}")
     }
 }
 
-mod test {
-    //use super::{self} as dna;
+#[cfg(test)]
+pub mod test {
+    use arrform::{arrform, ArrForm};
 
     #[test]
+    #[allow(unused_must_use)]
     fn test_rna_given_nucleotides_debug() {
         super::Dna::new("GCTA").map(|dna| {
             let rna = dna.into_rna();
-            dbg!(rna);
+            let rna_af = arrform!(64, "{:?}", rna);
+            assert_eq!(
+                "RNA {DnaBased {GCTA} which translates to CGAU}",
+                rna_af.as_str()
+            );
         });
     }
-}
-
-#[test]
-fn test_rna_from_dna_debug() {
-
 }
 
 impl<'a> Rna<'a> {
