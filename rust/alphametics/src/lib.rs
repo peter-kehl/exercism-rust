@@ -4,14 +4,14 @@
 
 //use rayon::prelude::*;
 
-mod abstra;
+mod plug;
 
 macro_rules! extra_assert {
     ($cond:expr $(,)?) => {{ /* compiler built-in */ }};
     ($cond:expr, $($arg:tt)+) => {{ /* compiler built-in */ }};
 }
 
-use abstra::set::{AbstractSet, HashedSet};
+use plug::{set::HashedSet, Set};
 use std::{collections::HashMap, fmt, ops::Deref};
 
 /// Each side of the equation contains one or more operands, all added together.
@@ -51,7 +51,7 @@ impl Deref for Operand {
 /// `digits` = available digits (not assigned yet). Somewhat auxilliary - used for asserts.
 /// `pairs = (so far) assigned letters & digits. On success this will be the solution.
 #[derive(Debug)]
-struct Assigned<'a, CHARSET: AbstractSet<char> + fmt::Debug, U8SET: AbstractSet<u8> + fmt::Debug> {
+struct Assigned<'a, CHARSET: Set<char> + fmt::Debug, U8SET: Set<u8> + fmt::Debug> {
     eq: &'a Equation,
     letters: &'a mut CHARSET,
     digits: &'a mut U8SET,
@@ -74,10 +74,7 @@ struct MagnitudeSubtotals {
 ///
 /// param `magnitude` = which decimal magnitude to assign (0 for the last digit, 1 for the second last, 2 for the third last...)
 /// return whether succeeded (then use `assigned.pairs` as mutated).
-fn assign_for_magnitude<
-    CHARSET: AbstractSet<char> + fmt::Debug,
-    U8SET: AbstractSet<u8> + fmt::Debug,
->(
+fn assign_for_magnitude<CHARSET: Set<char> + fmt::Debug, U8SET: Set<u8> + fmt::Debug>(
     assigned: &mut Assigned<CHARSET, U8SET>,
     empty_charset: &CHARSET,
     magnitude: usize,
@@ -102,7 +99,7 @@ fn assign_for_magnitude<
 
 /// Letters not assigned yet and present at the current magnitude.
 #[derive(Debug)]
-struct CurrentMagnitudeLetters<'a, CHARSET: AbstractSet<char> + fmt::Debug> {
+struct CurrentMagnitudeLetters<'a, CHARSET: Set<char> + fmt::Debug> {
     left: &'a mut CHARSET,
     right: &'a mut CHARSET,
 }
@@ -112,12 +109,7 @@ struct CurrentMagnitudeLetters<'a, CHARSET: AbstractSet<char> + fmt::Debug> {
 /// All `&mut` parameters are mutated, but reverted back if the function returns None.
 /// param left_letters_for_this_magnitude = available left side lettes (unassigned yet) for this magnitude
 /// param right_letters_for_this_magnitude = available right side lettes (unassigned yet) for this magnitude
-fn pick_and_assign_letter<
-    'm,
-    'l,
-    CHARSET: AbstractSet<char> + fmt::Debug,
-    U8SET: AbstractSet<u8> + fmt::Debug,
->(
+fn pick_and_assign_letter<'m, 'l, CHARSET: Set<char> + fmt::Debug, U8SET: Set<u8> + fmt::Debug>(
     assigned: &mut Assigned<'m, CHARSET, U8SET>,
     empty_charset: &CHARSET,
     magnitude: usize,
@@ -216,12 +208,7 @@ fn pick_and_assign_letter<
     return false;
 }
 
-fn pick_and_assign_digit<
-    'm,
-    'l,
-    CHARSET: AbstractSet<char> + fmt::Debug,
-    U8SET: AbstractSet<u8> + fmt::Debug,
->(
+fn pick_and_assign_digit<'m, 'l, CHARSET: Set<char> + fmt::Debug, U8SET: Set<u8> + fmt::Debug>(
     assigned: &mut Assigned<'m, CHARSET, U8SET>,
     empty_charset: &CHARSET,
     magnitude: usize,
@@ -281,7 +268,7 @@ fn operand_starts_with_letter(operand: &Operand, letter: char) -> bool {
     operand.last().map(|l| *l == letter) == Some(true)
 }
 
-fn all_letters_per_magnitude<CHARSET: AbstractSet<char> + fmt::Debug>(
+fn all_letters_per_magnitude<CHARSET: Set<char> + fmt::Debug>(
     eq_side: &Vec<Operand>,
     magnitude: usize,
     empty_charset: &CHARSET,
@@ -330,7 +317,7 @@ pub fn solve(input: &str) -> Option<HashMap<char, u8>> {
     solve_with(input, &empty_charset, &mut letters, &mut digits)
 }
 
-fn solve_with<CHARSET: AbstractSet<char> + fmt::Debug, U8SET: AbstractSet<u8> + fmt::Debug>(
+fn solve_with<CHARSET: Set<char> + fmt::Debug, U8SET: Set<u8> + fmt::Debug>(
     input: &str,
     empty_charset: &CHARSET,
     letters: &mut CHARSET,
