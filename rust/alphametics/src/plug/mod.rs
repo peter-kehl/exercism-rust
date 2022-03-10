@@ -71,7 +71,7 @@ struct RangeIndexer<T: Clone> {
 }
 /// Default implementation for primitive unsigned/signed integers.
 /// In nightly Rust as of early 2022, this works for `char`, too - `char` implements `Sub<char>`, even though that doesn't show up at https://doc.rust-lang.org/nightly/std/primitive.char.html.
-/// /// TODO make this conditional - errornous for 32 bit and bigger integers on 16bit platforms.
+/// TODO make this compile conditionally: - errornous for 32 bit and bigger integers on 16bit platforms.
 impl<T: Clone + Sub<T> + Add<T>> Indexer<T> for RangeIndexer<T>
 where
     T: TryInto<usize>,
@@ -120,4 +120,18 @@ impl Indexer<char> for RangeIndexer<char> {
 
 fn test_char_range(indexer: &RangeIndexer<char>) {
     let clone = indexer.clone();
+}
+
+/// TODO use?
+/// Implement only for types where any value has a valid (and unique) usize index.
+pub trait Indexable {
+    fn index(&self) -> usize;
+    fn key(index: usize) -> Self;
+}
+
+/// @TODO use?
+pub trait RangeIndexable {
+    fn index(&self, base: &Self) -> usize;
+    /// Intentionally not using &self as base, since it could be unclear.
+    fn key(index: usize, base: &Self) -> Self;
 }
