@@ -1,3 +1,4 @@
+//! no_std heap-less (bare metal/embedded-friendly) implementation
 #![no_std]
 
 use core::fmt::{self, Debug, Formatter};
@@ -7,7 +8,10 @@ use core::str::Chars;
 pub struct Dna<'a>(&'a str);
 
 pub enum Rna<'a> {
-    GivenNucleotides(&'a str),
+    GivenNucleotides(&'a str), // RNA nucleotides
+    // Original DNA nucleotides, but *not* transformed.
+    // Instead, it will generate RNA nucleotides on the fly by iterating when
+    // the consumer calls `PartialEq::eq(...)` on `self`.
     DnaBased(&'a str),
 }
 
@@ -80,6 +84,7 @@ impl<'a> Dna<'a> {
 }
 
 impl<'a> PartialEq for Rna<'a> {
+    // TODO could we .eq without a custom iterator, just .map()?
     fn eq(&self, other: &Self) -> bool {
         self.iter().eq(other.iter())
     }
