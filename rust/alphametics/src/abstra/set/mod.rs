@@ -197,3 +197,9 @@ where
         }
     }
 }
+
+
+fn char_as_sub() {
+    let c = 'c';
+    //let cast: &dyn core::ops::Sub<char, Output = char> = &c;
+}

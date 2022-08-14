@@ -1,3 +1,5 @@
+#![no_std]
+
 pub mod map;
 pub mod set;
 
