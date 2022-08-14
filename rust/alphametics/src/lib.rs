@@ -4,14 +4,14 @@
 
 //use rayon::prelude::*;
 
-mod plug;
+mod abstra;
 
 macro_rules! extra_assert {
     ($cond:expr $(,)?) => {{ /* compiler built-in */ }};
     ($cond:expr, $($arg:tt)+) => {{ /* compiler built-in */ }};
 }
 
-use plug::{set::HashedSet, Set};
+use abstra::{set::HashedSet, Set};
 use std::{collections::HashMap, fmt, ops::Deref};
 
 /// Each side of the equation contains one or more operands, all added together.

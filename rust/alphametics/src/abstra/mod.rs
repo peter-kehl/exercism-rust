@@ -57,7 +57,15 @@ pub trait Set<T: core::hash::Hash + Eq + Clone>: Clone {
     fn new_like(&self) -> Self;
 }
 
+/// Handles transformations of an item to an index, and vice versa.
+/// A collection has an `Indexer` instance, but the `Indexer` implementation
+/// doesn't know anything about the size/capacity of the collection. So even
+/// though `Indexer`'s `key(...)` function may succeed, a particular collection
+/// impplementation, or a particular collection instance, may not be able to accept it.
+/// It requires `Clone`, so that collections can store `Indexer` instances themselves
+/// rather than references (to avoid CPU cache fragmentation).
 pub trait Indexer<T: Clone>: Clone {
+    /// 0-based index, but specific to collection(s) indexed by this `Indexer` instance. That may be shifted from `RangeIndexable::index()`.
     fn index(&self, key: &T) -> usize;
     /// Used to generate an item (key) when iterating over a boolean-backed or similar set.
     fn key(&self, index: usize) -> T;
@@ -65,8 +73,9 @@ pub trait Indexer<T: Clone>: Clone {
 }
 
 #[derive(Clone)]
-struct RangeIndexer<T: Clone> {
+pub struct RangeIndexer<T: Clone> {
     start_key: T,
+    /// "Absolute" index respective to (value stored in_ start_key.
     start_index: usize,
 }
 /// Default implementation for primitive unsigned/signed integers.
@@ -124,14 +133,18 @@ fn test_char_range(indexer: &RangeIndexer<char>) {
 
 /// TODO use?
 /// Implement only for types where any value has a valid (and unique) usize index.
+/// Why not just handle this in `Indexer` implementations? Because this is useful so that users can implement it for their types, without re-implementing `Indexer`.
 pub trait Indexable {
+    /// "Absolute" index, unique per value. Independent/not specific to a start key of any collection, neither to its capacity.
     fn index(&self) -> usize;
     fn key(index: usize) -> Self;
 }
+/// TODO implement Indexable for any data-less enum?
 
 /// @TODO use?
-pub trait RangeIndexable {
+/// Like `Indexable`, this is useful for user-defined types.
+pub trait RangeIndexable : Clone {
     fn index(&self, base: &Self) -> usize;
-    /// Intentionally not using &self as base, since it could be unclear.
-    fn key(index: usize, base: &Self) -> Self;
+    /// Intentionally not using &self or `base: &Self` parameter instead of `indexer`, since it could be unclear.
+    fn key(index: usize, indexer: &RangeIndexer<Self>) -> Self;
 }
