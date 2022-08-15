@@ -1,6 +1,10 @@
-//! no_std heap-less (bare metal/embedded-friendly) implementation
+//! no_std heapless (bare metal/embedded-friendly) implementation
 #![no_std]
 
+extern crate alloc;
+
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
 use core::fmt::{self, Debug, Formatter};
 use core::str::Chars;
 
@@ -39,9 +43,43 @@ impl<'a> Rna<'a> {
     pub fn iter(&self) -> RnaIterator<'a> {
         match *self {
             Rna::GivenNucleotides(rna) => RnaIterator::GivenNucleotides(rna.chars()),
+
             Rna::DnaBased(dna) => RnaIterator::DnaBased(dna.chars()),
         }
     }
+    pub fn iter_dyn(&self) -> Box<dyn Iterator<Item = char>> {
+        todo!()
+        /*
+        match *self {
+            Rna::GivenNucleotides(rna) => {
+                let rna = rna.to_owned();
+                (move ||
+                    Box::new(rna.chars())
+                )()
+            },
+
+            Rna::DnaBased(dna) => {
+                let dna = dna.to_owned();
+
+                (move || {
+                    Box::new(dna.chars().map(|nucl| {
+                        // @TODO factor match {...} out to a separate function
+                        match nucl {
+                            'G' => 'C',
+                            'C' => 'G',
+                            'T' => 'A',
+                            'A' => 'U',
+                            _ => {
+                                panic!("Unrecognized DNA nucleotide {nucl} (for a DNA-based RNA).")
+                            }
+                        }
+                    }))
+                })()
+            }
+        }
+        */
+    }
+    // TODO alternative where dna/rna &str are 'static
 }
 
 impl<'a> Iterator for RnaIterator<'a> {
@@ -52,12 +90,12 @@ impl<'a> Iterator for RnaIterator<'a> {
             RnaIterator::DnaBased(chars) => {
                 let dna = chars.next();
                 match dna {
-                    Some(dna) => match dna {
+                    Some(nucl) => match nucl {
                         'G' => Some('C'),
                         'C' => Some('G'),
                         'T' => Some('A'),
                         'A' => Some('U'),
-                        _ => panic!("Unrecognized DNA nucleotide {dna} (for a DNA-based RNA)."),
+                        _ => panic!("Unrecognized DNA nucleotide {nucl} (for a DNA-based RNA)."),
                     },
                     None => None,
                 }
@@ -86,7 +124,9 @@ impl<'a> Dna<'a> {
 impl<'a> PartialEq for Rna<'a> {
     // TODO could we .eq without a custom iterator, just .map()?
     fn eq(&self, other: &Self) -> bool {
-        self.iter().eq(other.iter())
+        //self.iter().eq(other.iter())
+        self.iter().eq("abc".chars())
+        //todo!()
     }
 }
 
