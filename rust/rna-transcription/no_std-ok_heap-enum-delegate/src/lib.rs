@@ -1,4 +1,4 @@
-//! no_std heapless (bare metal/embedded-friendly) implementation
+//! no_std with heap implementation
 #![no_std]
 
 extern crate alloc;
@@ -22,9 +22,9 @@ pub enum Rna<'a> {
 const DNA_NUCLEOTIDES: &str = "GCTA";
 const RNA_NUCLEOTIDES: &str = "CGAU";
 
-/// Check that any characters in chars_to_be_checked are in allowed_chars.
-/// On success return Ok(()). On error return Err with a 0-based index of the first incorrect
-///  character.
+/// Check that any characters in chars_to_be_checked are in allowed_chars. On
+/// success return Ok(()). On error return Err with a 0-based index of the first
+/// incorrect character.
 fn check<'a>(chars_to_be_checked: &'a str, allowed_chars: &'a str) -> Result<(), usize> {
     for (i, c) in chars_to_be_checked.chars().enumerate() {
         if !allowed_chars.contains(c) {
@@ -124,8 +124,8 @@ impl<'a> Dna<'a> {
 impl<'a> PartialEq for Rna<'a> {
     // TODO could we .eq without a custom iterator, just .map()?
     fn eq(&self, other: &Self) -> bool {
-        //self.iter().eq(other.iter())
-        self.iter().eq("abc".chars())
+        self.iter().eq(other.iter())
+        //self.iter().eq("abc".chars())
         //todo!()
     }
 }
