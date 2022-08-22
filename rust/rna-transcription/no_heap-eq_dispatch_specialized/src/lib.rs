@@ -1,6 +1,5 @@
 //! no_std heapless (bare metal/embedded-friendly)
 #![no_std]
-
 use core::fmt::{self, Debug, Formatter};
 
 /// DNA (DNA nucleotide sequence)
@@ -110,7 +109,7 @@ pub mod test {
     /// [`Rna`](super::Rna). If [`Dna::new`](super::Dna::new) fails, it  
     /// returns [`Err`] containing `usize` index of the offending nucleotide (`char`), and this
     /// function then returns that [`Err`].
-    fn test_rna_given_nucleotides_debug() -> Result<(), usize>{
+    fn test_rna_given_nucleotides_debug() -> Result<(), usize> {
         super::Dna::new("GCTA").map(|dna| {
             let rna = dna.into_rna();
             let rna_dbg = format!("{:?}", rna);
