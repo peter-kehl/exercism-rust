@@ -1,4 +1,4 @@
-# exercism-rust
-Rust exercises
+# x-rust
 
-Based on https://exercism.org/tracks/rust.
+Rust exercises. Both from exercism and other.
+
